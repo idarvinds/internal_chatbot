@@ -7,7 +7,7 @@ from llama_index import LLMPredictor,PromptHelper, ServiceContext
 from llama_index import StorageContext, load_index_from_storage
 from langchain import OpenAI
 
-
+st.write(os.environ["OPENAI_API_KEY"], st.secrets["OPENAI_API_KEY"])
 
 doc_path = './storage/'
 index_file = 'index.json'
