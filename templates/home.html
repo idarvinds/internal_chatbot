@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ask LlamaIndex</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Ask LlamaIndex</h1>
+    <form action="/" method="POST" enctype="multipart/form-data">
+        <label for="file">Upload a file:</label><br>
+        <input type="file" id="file" name="file"><br><br>
+        <input type="submit" value="Upload">
+    </form>
+    {% if request.method == "POST" %}
+    <form action="/" method="POST">
+        <label for="question">Ask a question:</label><br>
+        <input type="text" id="question" name="question"><br><br>
+        <input type="submit" value="Ask">
+    </form>
+    {% endif %}
+</body>
+</html>
