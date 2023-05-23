@@ -42,72 +42,72 @@ def send_click():
     query_engine = index.as_query_engine()
     st.session_state.response  = query_engine.query(st.session_state.prompt)
 
-#if check_password():
-if 'response' not in st.session_state:
-    st.session_state.response = ''
+if check_password():
+    if 'response' not in st.session_state:
+        st.session_state.response = ''
 
-index = None
-st.title("Moxie Properties AI Chatbot")
+    index = None
+    st.title("Moxie Properties AI Chatbot")
 
-sidebar_placeholder = st.sidebar.container()
-uploaded_files = st.file_uploader("Choose a file", accept_multiple_files=True)
+    sidebar_placeholder = st.sidebar.container()
+    uploaded_files = st.file_uploader("Choose a file", accept_multiple_files=True)
 
-if uploaded_files is not None:
+    if uploaded_files is not None:
 
-    doc_files = os.listdir(doc_path)
-    for doc_file in doc_files:
-        os.remove(doc_path + doc_file)
+        doc_files = os.listdir(doc_path)
+        for doc_file in doc_files:
+            os.remove(doc_path + doc_file)
 
-    for uploaded_file in uploaded_files:
-        bytes_data = uploaded_file.read()
-        with open(f"{doc_path}{uploaded_file.name}", 'wb') as f: 
-            f.write(bytes_data)
+        for uploaded_file in uploaded_files:
+            bytes_data = uploaded_file.read()
+            with open(f"{doc_path}{uploaded_file.name}", 'wb') as f: 
+                f.write(bytes_data)
 
-    file_metadata = lambda x: {"filename": x}
-    SimpleDirectoryReader = download_loader("SimpleDirectoryReader")
+        file_metadata = lambda x: {"filename": x}
+        SimpleDirectoryReader = download_loader("SimpleDirectoryReader")
 
-    loader = SimpleDirectoryReader(doc_path, recursive=True, exclude_hidden=True, file_metadata=file_metadata)
-    documents = loader.load_data()
-    for document in documents:
-        doc_filename = document.extra_info['filename']
-        sidebar_placeholder.header('Current Processing Documents:')
-        sidebar_placeholder.subheader(doc_filename.lstrip("storage\\"))
-        sidebar_placeholder.write(document.get_text()[:1000]+'...')
+        loader = SimpleDirectoryReader(doc_path, recursive=True, exclude_hidden=True, file_metadata=file_metadata)
+        documents = loader.load_data()
+        for document in documents:
+            doc_filename = document.extra_info['filename']
+            sidebar_placeholder.header('Current Processing Documents:')
+            sidebar_placeholder.subheader(doc_filename.lstrip("storage\\"))
+            sidebar_placeholder.write(document.get_text()[:1000]+'...')
 
-    llm_predictor = LLMPredictor(llm=OpenAI(temperature=0, model_name="text-davinci-003"))
+        llm_predictor = LLMPredictor(llm=OpenAI(temperature=0, model_name="text-davinci-003"))
 
-    max_input_size = 4096
-    num_output = 256
-    max_chunk_overlap = 20
-    prompt_helper = PromptHelper(max_input_size, num_output, max_chunk_overlap)
+        max_input_size = 4096
+        num_output = 256
+        max_chunk_overlap = 20
+        prompt_helper = PromptHelper(max_input_size, num_output, max_chunk_overlap)
 
-    service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor, prompt_helper=prompt_helper)
+        service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor, prompt_helper=prompt_helper)
 
-    index = GPTVectorStoreIndex.from_documents(
-        documents, service_context=service_context
-    )
+        index = GPTVectorStoreIndex.from_documents(
+            documents, service_context=service_context
+        )
 
-    index.storage_context.persist()
+        index.storage_context.persist()
 
-elif os.path.exists(index_file):
-    storage_context = StorageContext.from_defaults(persist_dir="./storage")
+    elif os.path.exists(index_file):
+        storage_context = StorageContext.from_defaults(persist_dir="./storage")
 
-    index = load_index_from_storage(storage_context)
+        index = load_index_from_storage(storage_context)
 
-    SimpleDirectoryReader = download_loader("SimpleDirectoryReader")
-    file_metadata = lambda x: {"filename": x}
+        SimpleDirectoryReader = download_loader("SimpleDirectoryReader")
+        file_metadata = lambda x: {"filename": x}
 
-    loader = SimpleDirectoryReader(doc_path, recursive=True, exclude_hidden=True, file_metadata=file_metadata)
-    documents = loader.load_data()
-    for document in documents:
-        doc_filename = document.extra_info['filename']
-        sidebar_placeholder.header('Current Processing Documents:')
-        sidebar_placeholder.subheader(doc_filename.lstrip("storage\\"))
-        sidebar_placeholder.write(document.get_text()[:1000]+'...')
+        loader = SimpleDirectoryReader(doc_path, recursive=True, exclude_hidden=True, file_metadata=file_metadata)
+        documents = loader.load_data()
+        for document in documents:
+            doc_filename = document.extra_info['filename']
+            sidebar_placeholder.header('Current Processing Documents:')
+            sidebar_placeholder.subheader(doc_filename.lstrip("storage\\"))
+            sidebar_placeholder.write(document.get_text()[:1000]+'...')
 
-if index != None:
-    st.text_input("Ask something: ", key='prompt')
-    st.button("Send", on_click=send_click)
-    if st.session_state.response:
-        st.subheader("Response: ")
-        st.success(st.session_state.response, icon= "🤖")
+    if index != None:
+        st.text_input("Ask something: ", key='prompt')
+        st.button("Send", on_click=send_click)
+        if st.session_state.response:
+            st.subheader("Response: ")
+            st.success(st.session_state.response, icon= "🤖")
