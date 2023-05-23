@@ -6,7 +6,9 @@ from llama_index import GPTVectorStoreIndex
 from llama_index import LLMPredictor,PromptHelper, ServiceContext
 from llama_index import StorageContext, load_index_from_storage
 from langchain import OpenAI
+from pathlib import Path
 
+os.environ["OPENAI_API_KEY"] = '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'
 doc_path = './storage/'
 index_file = 'index.json'
 
@@ -58,14 +60,20 @@ if check_password():
         for doc_file in doc_files:
             os.remove(doc_path + doc_file)
 
+
         bytes_data = uploaded_file.read()
         with open(f"{doc_path}{uploaded_file.name}", 'wb') as f: 
             f.write(bytes_data)
 
-        SimpleDirectoryReader = download_loader("SimpleDirectoryReader")
-
-        loader = SimpleDirectoryReader(doc_path, recursive=True, exclude_hidden=True)
-        documents = loader.load_data()
+        if uploaded_file.type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+            PandasExcelReader = download_loader("PandasExcelReader")
+            loader = PandasExcelReader()
+            documents = loader.load_data(uploaded_file)
+        else:
+            SimpleDirectoryReader = download_loader("SimpleDirectoryReader")
+            loader = SimpleDirectoryReader(doc_path, recursive=True, exclude_hidden=True)
+            documents = loader.load_data()
+        
         sidebar_placeholder.header('Current Processing Document:')
         sidebar_placeholder.subheader(uploaded_file.name)
         sidebar_placeholder.write(documents[0].get_text()[:10000]+'...')
