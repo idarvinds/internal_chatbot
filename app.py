@@ -9,7 +9,6 @@ from langchain import OpenAI
 
 doc_path = './storage/'
 index_file = 'index.json'
-st.write(os.environ["OPENAI_API_KEY"], st.secrets["OPENAI_API_KEY"])
 
 def check_password():
     """Returns `True` if the user had the correct password."""
@@ -79,8 +78,8 @@ if check_password():
 
         max_input_size = 4096
         num_output = 256
-        max_chunk_overlap = 20
-        prompt_helper = PromptHelper(max_input_size, num_output, max_chunk_overlap)
+        chunk_overlap_ratio = .1
+        prompt_helper = PromptHelper(max_input_size, num_output, chunk_overlap_ratio)
 
         service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor, prompt_helper=prompt_helper)
 
