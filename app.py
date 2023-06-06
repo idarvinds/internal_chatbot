@@ -9,6 +9,7 @@ from langchain import OpenAI
 
 doc_path = './storage/'
 index_file = 'index.json'
+st.write(os.environ["OPENAI_API_KEY"], st.secrets["OPENAI_API_KEY"])
 
 def check_password():
     """Returns `True` if the user had the correct password."""
